@@ -13,7 +13,7 @@ INO_DIR = os.path.join(HERE, "inos")
 def mk_project(proj_name, ino_file=True):
     """ builds a fresh arduino project and optionally copies in an ino """
 
-    print("") # for verbose mode, newline before debug info
+    print("")  # for verbose mode, newline before debug info
 
     if not os.path.exists(WORK_DIR):
         os.mkdir(WORK_DIR)
@@ -48,9 +48,11 @@ def compile(proj_dir, make_flags=None):
 
 # >>> Tests below
 
+
 def test_blank():
     proj = mk_project("blank", ino_file=False)
     compile(proj)
+
 
 def test_webserver():
     proj = mk_project("webserver")
