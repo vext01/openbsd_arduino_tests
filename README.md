@@ -18,7 +18,13 @@ $ pip2.7 install --user sh
 ## Running tests
 
 ```
-py.test
+py.test test_arduino.py
 ```
 
 Add '-v -s' for more verbose information.
+
+## Adding more tests
+
+ * Add your ino file into the `inos` directory.
+ * Add a comment at the top saying where it came from (URL).
+ * Add a test in `test_arduino.py`
