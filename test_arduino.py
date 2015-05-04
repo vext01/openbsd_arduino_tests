@@ -4,10 +4,19 @@
 import sh
 import shutil
 import os
+import pytest
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 WORK_DIR = os.path.join(HERE, "work")
 INO_DIR = os.path.join(HERE, "inos")
+
+USB_VID = '0x2341'
+USB_PID = '0x803c'
+USB_MANUFACTURER = '"\\"Unknown\\""'
+USB_PRODUCT = '"\\"Arduino Micro\\""'
+USB_FLAGS = ("USER_CXXFLAGS=-DUSB_VID=%s -DUSB_PID=%s " +
+             "-DUSB_MANUFACTURER=%s -DUSB_PRODUCT=%s") % (
+                 USB_VID, USB_PID, USB_MANUFACTURER, USB_PRODUCT)
 
 
 def mk_project(proj_name, ino_file=True):
@@ -57,3 +66,39 @@ def test_blank():
 def test_webserver():
     proj = mk_project("webserver")
     compile(proj, ['LIBRARIES=SPI Ethernet'])
+
+
+def test_eeprom():
+    proj = mk_project("eeprom")
+    compile(proj, ['LIBRARIES=EEPROM'])
+
+
+def test_lcd():
+    proj = mk_project("lcd")
+    compile(proj, ['LIBRARIES=LiquidCrystal Wire'])
+
+
+def test_datalogger():
+    proj = mk_project("datalogger")
+    compile(proj, ['LIBRARIES=SD SPI'])
+
+
+def test_bridge():
+    proj = mk_project("bridge")
+    compile(proj, ['LIBRARIES=Bridge File'])
+
+
+# #error If you are here, you should check what is exactly the processor
+# you are using...
+# AND
+# avr32/io.h: No such file or directory
+@pytest.mark.xfail
+def test_wifi():
+    proj = mk_project("wifi")
+    compile(proj, ['LIBRARIES=WiFi Bridge', 'VARIANT=yun' 'MCU=atmega32u4'])
+
+
+def test_esplorablink():
+    proj = mk_project("esplorablink")
+    compile(proj, ['LIBRARIES=Esplora', 'VARIANT=leonardo',
+                   'MCU=atmega32u4', USB_FLAGS])
