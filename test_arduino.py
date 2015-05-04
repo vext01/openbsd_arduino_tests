@@ -92,13 +92,19 @@ def test_bridge():
 # you are using...
 # AND
 # avr32/io.h: No such file or directory
+#
+# I think this is because our avr-gcc doesn't target avr32?
+# I see there is a separate avr32 port.
 @pytest.mark.xfail
 def test_wifi():
     proj = mk_project("wifi")
-    compile(proj, ['LIBRARIES=WiFi Bridge', 'VARIANT=yun' 'MCU=atmega32u4'])
+    compile(proj, ['LIBRARIES=WiFi Bridge', 'VARIANT=yun',
+                   'MCU=atmega32u4', USB_FLAGS])
 
-
+# If the abpve comment about avr32 is correct, this test passes as a fluke.
 def test_esplorablink():
     proj = mk_project("esplorablink")
     compile(proj, ['LIBRARIES=Esplora', 'VARIANT=leonardo',
                    'MCU=atmega32u4', USB_FLAGS])
+
+# XXX test extra user flags and files.
