@@ -112,7 +112,8 @@ def test_wifi():
                    'MCU=atmega32u4', USB_FLAGS])
 
 
-# Despite the fact that we dont yet support avr32, this works (fluke)
+# We dont yet support avr32
+@pytest.mark.xfail
 def test_esplorablink():
     proj = mk_project("esplorablink")
     compile(proj, ['LIBRARIES=Esplora', 'VARIANT=leonardo',
