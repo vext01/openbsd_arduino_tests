@@ -1,10 +1,10 @@
 #!/usr/bin/env python2.7
 # When hacking, please use PEP8
 
-import sh
 import shutil
 import os
 import pytest
+import subprocess
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 WORK_DIR = os.path.join(HERE, "work")
@@ -17,6 +17,19 @@ USB_PRODUCT = '"\\"Arduino Micro\\""'
 USB_FLAGS = ("USER_CXXFLAGS=-DUSB_VID=%s -DUSB_PID=%s " +
              "-DUSB_MANUFACTURER=%s -DUSB_PRODUCT=%s") % (
                  USB_VID, USB_PID, USB_MANUFACTURER, USB_PRODUCT)
+
+
+class ShellError(Exception):
+    pass
+
+
+def shell(args):
+    try:
+        subprocess.check_output(" ".join(args), stderr=subprocess.STDOUT,
+                                shell=True)
+    except subprocess.CalledProcessError as e:
+        raise ShellError("Command failed: args=%s\n\noutput: %s\n\n" %
+                         (args, e.output))
 
 
 def mk_project(proj_name, ino_file=True):
@@ -33,7 +46,8 @@ def mk_project(proj_name, ino_file=True):
         shutil.rmtree(proj_dir)
 
     os.chdir(WORK_DIR)
-    sh.arduinoproject(proj_name)
+    # sh.arduinoproject(proj_name)
+    shell(["arduinoproject", proj_name])
     os.chdir(HERE)
 
     if ino_file:
@@ -48,7 +62,8 @@ def compile(proj_dir, make_flags=None):
         make_flags = []
     os.chdir(proj_dir)
     print("Running 'make %s'" % " ".join(make_flags))
-    print(sh.make(make_flags))
+    # print(sh.make(make_flags))
+    shell(["make"] + make_flags)
     os.chdir(HERE)
 
     # existing hex file indicates a succeeded compile
@@ -65,7 +80,7 @@ def test_blank():
 
 def test_webserver():
     proj = mk_project("webserver")
-    compile(proj, ['LIBRARIES=SPI Ethernet'])
+    compile(proj, ['LIBRARIES="SPI Ethernet"'])
 
 
 def test_eeprom():
@@ -75,17 +90,17 @@ def test_eeprom():
 
 def test_lcd():
     proj = mk_project("lcd")
-    compile(proj, ['LIBRARIES=LiquidCrystal Wire'])
+    compile(proj, ['LIBRARIES="LiquidCrystal Wire"'])
 
 
 def test_datalogger():
     proj = mk_project("datalogger")
-    compile(proj, ['LIBRARIES=SD SPI'])
+    compile(proj, ['LIBRARIES="SD SPI"'])
 
 
 def test_bridge():
     proj = mk_project("bridge")
-    compile(proj, ['LIBRARIES=Bridge File'])
+    compile(proj, ['LIBRARIES="Bridge File"'])
 
 
 # We don't support avr32
@@ -93,7 +108,7 @@ def test_bridge():
 @pytest.mark.xfail
 def test_wifi():
     proj = mk_project("wifi")
-    compile(proj, ['LIBRARIES=WiFi Bridge', 'VARIANT=yun',
+    compile(proj, ['LIBRARIES="WiFi Bridge"', 'VARIANT=yun',
                    'MCU=atmega32u4', USB_FLAGS])
 
 
@@ -106,7 +121,7 @@ def test_esplorablink():
 
 def test_ethernet():
     proj = mk_project("ethernet")
-    compile(proj, ['LIBRARIES=Ethernet SPI'])
+    compile(proj, ['LIBRARIES="Ethernet SPI"'])
 
 
 # XXX test extra user flags and files.
